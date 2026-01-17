@@ -1,0 +1,306 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5f673a77-8171-4ef6-aa7d-1eb1a576f11a",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cf7b90e0-19bf-4469-9d71-16fdec7cc455",
+      "name": "Webhook",
+      "webhookId": "5f673a77-8171-4ef6-aa7d-1eb1a576f11a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.text }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "STRICT INSTRUCTION: Output RAW JSON ONLY. Do NOT use markdown code blocks. Do NOT use backticks. Start your response directly with {.  You are a Real Estate Investment Analyst. Analyze the property text.  Data Rules:      \"title\": Extract a short 3-5 word title.      \"asking_price\": Extract number.      \"renovation_cost\": Extract number (default 0).      \"airbnb_legal\": Boolean (true/false).      \"summary\": Write a 1-sentence summary.      \"verdict\": IF (price + reno < 400000) AND (airbnb is legal) -> \"🟢 BUY\". ELSE -> \"🔴 PASS\". IF price is missing, output \"🟡 HUMAN REVIEW\"."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1d33ac73-50a0-4101-b2ec-93fa46ff362b",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        144,
+        208
+      ],
+      "id": "80c208ac-3ad6-45d2-8753-4bcc4c6ddf92",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bDM29K4yfUubALlr",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "app7vbrzwfHy9Yyby",
+          "mode": "list",
+          "cachedResultName": "Real Estate Deal Analyzer",
+          "cachedResultUrl": "https://airtable.com/app7vbrzwfHy9Yyby"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblNgZTSZ2MI1tVEq",
+          "mode": "list",
+          "cachedResultName": "Deal Opportunities",
+          "cachedResultUrl": "https://airtable.com/app7vbrzwfHy9Yyby/tblNgZTSZ2MI1tVEq"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Requires Human Review (Flag)": false,
+            "Asking Price": "={{ JSON.parse($json.text).asking_price }}",
+            "Renovation Estimate": "={{ JSON.parse($json.text).renovation_cost }}",
+            "Property Title": "={{ JSON.parse($json.text).title }}",
+            "Is Airbnb Legal?": true,
+            "AI Verdict": "={{ JSON.parse($json.text).verdict }}",
+            "AI Summary": "={{ JSON.parse($json.text).summary }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "Property Title",
+              "displayName": "Property Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Asking Price",
+              "displayName": "Asking Price",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Renovation Estimate",
+              "displayName": "Renovation Estimate",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Is Airbnb Legal?",
+              "displayName": "Is Airbnb Legal?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Verdict",
+              "displayName": "AI Verdict",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "🟢 BUY",
+                  "value": "🟢 BUY"
+                },
+                {
+                  "name": "🔴 PASS",
+                  "value": "🔴 PASS"
+                },
+                {
+                  "name": "🟡 HUMAN REVIEW",
+                  "value": "🟡 HUMAN REVIEW"
+                },
+                {
+                  "name": "Good Deal",
+                  "value": "Good Deal"
+                },
+                {
+                  "name": "Needs Review",
+                  "value": "Needs Review"
+                },
+                {
+                  "name": "Excellent",
+                  "value": "Excellent"
+                },
+                {
+                  "name": "Fair",
+                  "value": "Fair"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Deal Added Date",
+              "displayName": "Deal Added Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Requires Human Review (Flag)",
+              "displayName": "Requires Human Review (Flag)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Evaluation Date",
+              "displayName": "Last Evaluation Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        0
+      ],
+      "id": "940d0f59-b60d-4982-b958-15821a6c7036",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "IqQMnBftywwnt2Pb",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "183efec6-556a-4557-a5a4-9c49c61edb1f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "29b047505b3de3741ab31203475fbdd9ed7940f6b62a542dc9bed107bdc3071c"
+  },
+  "id": "UwuWNPm6yU-YgH9doJAO_",
+  "tags": []
+}
